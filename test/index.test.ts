@@ -9,11 +9,14 @@ describe('.ts files runs', () => {
       {
         "code": "
       import { ref } from 'vue'
+      import router from 'vue-router'
+      
+      
       require('http')
       ",
         "map": SourceMap {
           "file": null,
-          "mappings": "AAAA;AACA;AACA;",
+          "mappings": "AAAA;AACA;AACA;;AAA+B;AAC/B;",
           "names": [],
           "sources": [
             null,
