@@ -22,8 +22,14 @@ export function transform(_code: string, _id: string, _options: Options): Transf
  * @returns
  */
 export function transformTS(_code: string, _id: string, _options: Options): TransformResult {
-  if (!REQUIRE_RE.test(_code))
+  if (!_code.match(REQUIRE_RE))
     return _code
+
+  const matchers = 'require(\'http\')'.matchAll(REQUIRE_RE)
+
+  for (const matcher of matchers)
+    // eslint-disable-next-line no-console
+    console.log('match:', matcher)
 
   const source = new MagicString(_code)
 

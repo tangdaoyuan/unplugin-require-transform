@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 import colors from 'picocolors'
 
-const prefix = colors.bold('[unplugin:mock]')
+const prefix = colors.bold('[unplugin:require]')
 
 class Logger {
   static info(message: string) {
