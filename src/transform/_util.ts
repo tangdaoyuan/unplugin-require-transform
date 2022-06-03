@@ -1,6 +1,5 @@
 export function lastPosition(iterator: IterableIterator<RegExpMatchArray>) {
   const matcher = Array.from(iterator).at(-1)
-  console.log(matcher)
   if (!matcher)
     return -1
 
