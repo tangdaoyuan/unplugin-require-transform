@@ -1,4 +1,5 @@
 import type { TransformResult } from 'unplugin'
+import MagicString from 'magic-string'
 import type { Options } from '../types'
 import { REQUIRE_RE } from '../utils'
 
@@ -21,11 +22,15 @@ export function transform(_code: string, _id: string, _options: Options): Transf
  * @returns
  */
 export function transformTS(_code: string, _id: string, _options: Options): TransformResult {
-  if (REQUIRE_RE.test(_code))
-    // eslint-disable-next-line no-console
-    console.log('require exist')
+  if (!REQUIRE_RE.test(_code))
+    return _code
 
-  return _code
+  const source = new MagicString(_code)
+
+  return {
+    code: source.toString(),
+    map: source.generateMap(),
+  }
 }
 
 /**

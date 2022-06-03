@@ -1,5 +1,31 @@
-import { expect, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
+import { requireBaseSegment } from './fixtures/base'
+import { transformTS } from '@/transform'
 
-it('runs', () => {
-  expect((1 + 1)).to.equal(2)
+describe('.ts files runs', () => {
+  it('basic file', () => {
+    const code = transformTS(requireBaseSegment, 'test/fixtures/base.ts', {})
+    // eslint-disable-next-line no-console
+    console.log(code)
+    expect(code).toMatchInlineSnapshot(`
+      {
+        "code": "
+      import { ref } from 'vue'
+      require('http')
+      ",
+        "map": SourceMap {
+          "file": null,
+          "mappings": "AAAA;AACA;AACA;",
+          "names": [],
+          "sources": [
+            null,
+          ],
+          "sourcesContent": [
+            null,
+          ],
+          "version": 3,
+        },
+      }
+    `)
+  })
 })
