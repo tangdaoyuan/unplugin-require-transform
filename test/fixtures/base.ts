@@ -1,7 +1,7 @@
 export const requireBaseSegment = `
 import { ref } from 'vue'
 import router from 'vue-router'
-const http = require('http')
+const http = require('http');
 require('path')
 `
 

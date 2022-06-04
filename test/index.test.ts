@@ -13,10 +13,11 @@ describe('.ts files runs', () => {
       import \$_2 from 'path'
       import \$_1 from 'http'
       const http = \$_1;
+      
       ",
         "map": SourceMap {
           "file": null,
-          "mappings": "AAAA;AACA;AACA;;;AACA,WAAW",
+          "mappings": "AAAA;AACA;AACA;;;AACA,WAAW,MAAkB;",
           "names": [],
           "sources": [
             null,
@@ -56,25 +57,10 @@ describe('.ts files runs', () => {
   it('relative path require', () => {
     const code = transformTS(requireRelativeSegment, 'test/fixtures/relative.ts', {})
     expect(code).toMatchInlineSnapshot(`
-      {
-        "code": "
+      "
       import { ref } from 'vue'
-      import \$_1 from './http'
-      const http = \$_1;
-      ",
-        "map": SourceMap {
-          "file": null,
-          "mappings": "AAAA;AACA;;AACA,WAAW",
-          "names": [],
-          "sources": [
-            null,
-          ],
-          "sourcesContent": [
-            null,
-          ],
-          "version": 3,
-        },
-      }
+      const http = require('./http')
+      "
     `)
   })
 })
