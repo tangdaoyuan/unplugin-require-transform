@@ -28,14 +28,32 @@ export function transformTS(_code: string, _id: string, _options: Options): Tran
 
   const lastImportPos = lastPosition(_code.matchAll(STATIC_IMPORT_RE))
   const matchers = _code.matchAll(REQUIRE_RE)
-
-  for (const matcher of matchers)
-    // eslint-disable-next-line no-console
-    console.log('match:', matcher)
-
   const source = new MagicString(_code)
 
-  source.appendRight(lastImportPos, '\n\n')
+  const gen = createImporterGenerator()
+
+  for (const matcher of matchers) {
+    if (!matcher.groups?.import)
+      continue
+
+    const { importer, exporter } = gen(matcher.groups?.import)
+    if (matcher[0]?.[0] === '=') {
+      source.overwrite(
+        matcher.index!,
+        matcher.index! + matcher[0].length,
+        `= ${exporter};`,
+      )
+    }
+    else {
+      source.remove(matcher.index!, matcher.index! + matcher[0].length)
+    }
+    source.prependRight(
+      lastImportPos,
+      `${importer}\n`,
+    )
+  }
+
+  source.append('\n')
 
   return {
     code: source.toString(),
@@ -53,4 +71,15 @@ export function transformTS(_code: string, _id: string, _options: Options): Tran
  */
 export function transformVUE(_code: string, _id: string, _options: Options): TransformResult {
   return _code
+}
+
+function createImporterGenerator() {
+  let index = 0
+  return (specifier: string) => {
+    index++
+    return {
+      importer: `import $_${index} from '${specifier}'`,
+      exporter: `$_${index}`,
+    }
+  }
 }
