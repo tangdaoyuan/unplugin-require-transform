@@ -57,10 +57,25 @@ describe('.ts files runs', () => {
   it('relative path require', () => {
     const code = transformTS(requireRelativeSegment, 'test/fixtures/relative.ts', {})
     expect(code).toMatchInlineSnapshot(`
-      "
+      {
+        "code": "
       import { ref } from 'vue'
-      const http = require('./http')
-      "
+      import \$_1 from './http'
+      const http = \$_1;
+      ",
+        "map": SourceMap {
+          "file": null,
+          "mappings": "AAAA;AACA;;AACA,WAAW",
+          "names": [],
+          "sources": [
+            null,
+          ],
+          "sourcesContent": [
+            null,
+          ],
+          "version": 3,
+        },
+      }
     `)
   })
 })
