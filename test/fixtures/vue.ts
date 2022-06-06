@@ -58,3 +58,33 @@ export const sfcSegment_NoneScript = `
   <a :href="require('test')" >anchor</a>
 </template>
 `
+
+export const sfcSegment_TemplateScript_SetupFunc = `
+<template>
+  <img :src="require('../assets/logo.png')" />
+  <img :src="require('../assets/icon.png')" />
+</template>
+<script>
+export default {
+  setup() {
+    const test = 1
+    return {
+      test
+    }
+  }
+}
+</script>
+`
+
+export const sfcSegment_TemplateScript_OptionsAPI = `
+<template>
+  <img :src="require('../assets/logo.png')" />
+</template>
+<script>
+export default {
+  data() {
+    return {}
+  }
+}
+</script>
+`

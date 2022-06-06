@@ -83,6 +83,8 @@ export function transformVUE(_code: string, _id: string, _options: Options): Tra
   const lastImportPos = lastPosition(_code.matchAll(STATIC_IMPORT_RE), script.startEnd!)
   const matchers = _code.matchAll(REQUIRE_RE)
   const gen = createImporterGenerator()
+  const returnValues: string[] = []
+
   for (const matcher of matchers) {
     if (!matcher.groups?.import)
       continue
@@ -111,20 +113,22 @@ export function transformVUE(_code: string, _id: string, _options: Options): Tra
         matcher.index! + matcher[0].length,
         `${exporter}`,
       )
-      console.log(lastImportPos)
       magicString.prependRight(
         lastImportPos,
         `${importer}\n`,
       )
-
-      transformScriptReturn(magicString, script)
+      returnValues.push(exporter)
     }
   }
+  transformScriptReturn(magicString, script, returnValues)
 
   return magicString.toString()
 }
 
-function transformScriptReturn(source: MagicString, script: any) {
+function transformScriptReturn(source: MagicString, script: any, values: string[]) {
+  if (!values.length)
+    return
+
   // 1. setup (script)
   // 2. options
   // 3. setupFunc
@@ -132,10 +136,10 @@ function transformScriptReturn(source: MagicString, script: any) {
     return
 
   if (script.type === 'options')
-    Logger.warn('should handle Options api')
+    source.prependRight(script.scriptReturnStart, `${values.join(',\n')},\n`)
 
   if (script.type === 'setupFunc')
-    Logger.warn('should handle setup function api')
+    source.prependRight(script.scriptReturnStart, `${values.join(',\n')},\n`)
 }
 
 function getScriptTag(code: string) {
@@ -148,6 +152,7 @@ function getScriptTag(code: string) {
     startEnd: 0,
     content: '',
     lost: false,
+    scriptReturnStart: 0,
   }
   if (!scriptMatcher) {
     const appendStr = '<script setup>\n</script>'
@@ -159,16 +164,38 @@ function getScriptTag(code: string) {
   }
   else {
     let type = scriptMatcher.groups?.type
-    if (!type)
-      type = scriptMatcher[0].indexOf('setup') ? 'setupFunc' : 'options'
+    let scriptReturnStart = 0
+    if (!type) {
+      /**
+       * matcher such as:
+       *
+       * [
+       *  'setup() {\n  return {',
+       *  ...
+       *]
+       */
+      const setupMatcher = scriptMatcher[0].match(/setup\s*\(.*\)\s*\{[\s\S]*return\s*\{\n*/)
+      const dataMatcher = scriptMatcher[0].match(/data\s*\(.*\)\s*\{[\s\S]*return\s*\{\n*/)
+
+      if (setupMatcher) {
+        type = 'setupFunc'
+        scriptReturnStart = scriptMatcher.index! + setupMatcher.index! + setupMatcher[0].length
+      }
+
+      if (dataMatcher) {
+        type = 'options'
+        scriptReturnStart = scriptMatcher.index! + dataMatcher.index! + dataMatcher[0].length
+      }
+    }
 
     script = {
       start: scriptMatcher.index || 0,
       len: scriptMatcher?.[0]?.length,
-      type,
+      type: type || 'unknown',
       startEnd: (scriptMatcher?.index || 0) + (scriptMatcher?.groups?.prefix.length || 0),
       content: scriptMatcher?.[0] || '',
       lost: false,
+      scriptReturnStart,
     }
   }
   return script
