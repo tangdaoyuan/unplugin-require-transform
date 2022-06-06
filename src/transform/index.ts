@@ -121,7 +121,10 @@ export function transformVUE(_code: string, _id: string, _options: Options): Tra
   }
   transformScriptReturn(magicString, script, returnValues)
 
-  return magicString.toString()
+  return {
+    code: magicString.toString(),
+    map: magicString.generateMap(),
+  }
 }
 
 function transformScriptReturn(source: MagicString, script: any, values: string[]) {
