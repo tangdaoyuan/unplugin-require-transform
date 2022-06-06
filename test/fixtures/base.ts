@@ -14,3 +14,9 @@ export const requireRelativeSegment = `
 import { ref } from 'vue'
 const http = require('./http')
 `
+
+export const Comments = `
+import { ref } from 'vue'
+// const http = require('./http')
+/** const http = require('./http') */
+`

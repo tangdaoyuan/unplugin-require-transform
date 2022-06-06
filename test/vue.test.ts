@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { sfcSegment_Options, sfcSegment_Setup, sfcSegment_SetupScript } from './fixtures/vue'
+import { sfcSegment_NoneScript, sfcSegment_Options, sfcSegment_Setup, sfcSegment_SetupScript } from './fixtures/vue'
 import { transformVUE } from '@/transform'
 
 describe('.vue files runs', () => {
@@ -61,6 +61,17 @@ describe('.vue files runs', () => {
       import \$_1 from 'http'
       const http = \$_1;
       </script>
+      "
+    `)
+  })
+  it('with no script', () => {
+    const code = transformVUE(sfcSegment_NoneScript, 'test/fixtures/vue.ts', {})
+    expect(code).toMatchInlineSnapshot(`
+      "<script setup>
+      </script>
+      <template>
+        <img :src=\\"require('../assets/logo.png')\\" />
+      </template>
       "
     `)
   })

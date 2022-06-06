@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { requireAbsoluteSegment, requireBaseSegment, requireRelativeSegment } from './fixtures/base'
+import { Comments, requireAbsoluteSegment, requireBaseSegment, requireRelativeSegment } from './fixtures/base'
 import { transformTS } from '@/transform'
 
 describe('.ts files runs', () => {
@@ -79,6 +79,16 @@ describe('.ts files runs', () => {
           "version": 3,
         },
       }
+    `)
+  })
+  it('comment', () => {
+    const code = transformTS(Comments, 'test/fixtures/comments.ts', {})
+    expect(code).toMatchInlineSnapshot(`
+      "
+      import { ref } from 'vue'
+      // const http = require('./http')
+      /** const http = require('./http') */
+      "
     `)
   })
 })
