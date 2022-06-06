@@ -45,13 +45,16 @@ const http = require('http')
 
 export const sfcSegment_TemplateScript = `
 <template>
-  <img :src="require('../assets/logo.png')" />
+  <img :src="require('../assets/logo1.png')" />
+  <img :src="require('../assets/logo2.png')" />
 </template>
-<script setup></script>
+<script setup>
+</script>
 `
 
 export const sfcSegment_NoneScript = `
 <template>
   <img :src="require('../assets/logo.png')" />
+  <a :href="require('test')" >anchor</a>
 </template>
 `

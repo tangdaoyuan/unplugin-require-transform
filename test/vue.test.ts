@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { sfcSegment_NoneScript, sfcSegment_Options, sfcSegment_Setup, sfcSegment_SetupScript } from './fixtures/vue'
+import { sfcSegment_NoneScript, sfcSegment_Options, sfcSegment_Setup, sfcSegment_SetupScript, sfcSegment_TemplateScript } from './fixtures/vue'
 import { transformVUE } from '@/transform'
 
 describe('.vue files runs', () => {
@@ -64,13 +64,31 @@ describe('.vue files runs', () => {
       "
     `)
   })
+  it('with template', () => {
+    const code = transformVUE(sfcSegment_TemplateScript, 'test/fixtures/vue.ts', {})
+    expect(code).toMatchInlineSnapshot(`
+      "
+      <template>
+        <img :src=\\"\$_1\\" />
+        <img :src=\\"\$_2\\" />
+      </template>
+      <script setup>
+      import \$_2 from '../assets/logo2.png'
+      import \$_1 from '../assets/logo1.png'
+      </script>
+      "
+    `)
+  })
   it('with no script', () => {
     const code = transformVUE(sfcSegment_NoneScript, 'test/fixtures/vue.ts', {})
     expect(code).toMatchInlineSnapshot(`
       "<script setup>
+      import \$_2 from 'test'
+      import \$_1 from '../assets/logo.png'
       </script>
       <template>
-        <img :src=\\"require('../assets/logo.png')\\" />
+        <img :src=\\"\$_1\\" />
+        <a :href=\\"\$_2\\" >anchor</a>
       </template>
       "
     `)

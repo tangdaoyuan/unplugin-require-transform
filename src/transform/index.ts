@@ -74,10 +74,11 @@ export function transformVUE(_code: string, _id: string, _options: Options): Tra
   if (!_code.match(REQUIRE_RE))
     return _code
 
-  const magicString = new MagicString(_code)
   const script = getScriptTag(_code)
   if (script.lost)
-    magicString.appendLeft(0, script.content)
+    _code = `${script.content}${_code}`
+
+  const magicString = new MagicString(_code)
 
   const lastImportPos = lastPosition(_code.matchAll(STATIC_IMPORT_RE), script.startEnd!)
   const matchers = _code.matchAll(REQUIRE_RE)
@@ -103,12 +104,38 @@ export function transformVUE(_code: string, _id: string, _options: Options): Tra
       }
     }
     else {
-      // if position in template, transform as setupscript
-      Logger.info('this is a template require')
+      // position in <template>
+      const { importer, exporter } = gen(matcher.groups?.import)
+      magicString.overwrite(
+        matcher.index! + 1,
+        matcher.index! + matcher[0].length,
+        `${exporter}`,
+      )
+      console.log(lastImportPos)
+      magicString.prependRight(
+        lastImportPos,
+        `${importer}\n`,
+      )
+
+      transformScriptReturn(magicString, script)
     }
   }
 
   return magicString.toString()
+}
+
+function transformScriptReturn(source: MagicString, script: any) {
+  // 1. setup (script)
+  // 2. options
+  // 3. setupFunc
+  if (script.type === 'setup')
+    return
+
+  if (script.type === 'options')
+    Logger.warn('should handle Options api')
+
+  if (script.type === 'setupFunc')
+    Logger.warn('should handle setup function api')
 }
 
 function getScriptTag(code: string) {
@@ -117,7 +144,7 @@ function getScriptTag(code: string) {
   let script = {
     start: 0,
     len: 0,
-    type: 'option',
+    type: 'setup',
     startEnd: 0,
     content: '',
     lost: false,
@@ -125,17 +152,20 @@ function getScriptTag(code: string) {
   if (!scriptMatcher) {
     const appendStr = '<script setup>\n</script>'
     script.start = 0
-    script.startEnd = 14
+    script.startEnd = 15
     script.len = appendStr.length
-    script.type = 'setup'
     script.content = appendStr
     script.lost = true
   }
   else {
+    let type = scriptMatcher.groups?.type
+    if (!type)
+      type = scriptMatcher[0].indexOf('setup') ? 'setupFunc' : 'options'
+
     script = {
       start: scriptMatcher.index || 0,
       len: scriptMatcher?.[0]?.length,
-      type: scriptMatcher.groups?.type || 'option',
+      type,
       startEnd: (scriptMatcher?.index || 0) + (scriptMatcher?.groups?.prefix.length || 0),
       content: scriptMatcher?.[0] || '',
       lost: false,
