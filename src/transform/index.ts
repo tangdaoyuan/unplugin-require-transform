@@ -6,7 +6,7 @@ import { lastPosition } from './_util'
 
 export function transform(_code: string, _id: string, _options: Options): TransformResult {
   if (_id.endsWith('.ts'))
-    transformTS(_code, _id, _options)
+    return transformTS(_code, _id, _options)
 
   if (_id.endsWith('.vue'))
     return transformVUE(_code, _id, _options)
