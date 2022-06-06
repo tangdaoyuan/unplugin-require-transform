@@ -1,11 +1,11 @@
-export function lastPosition(iterator: IterableIterator<RegExpMatchArray>) {
+export function lastPosition(iterator: IterableIterator<RegExpMatchArray>, defaultValue = -1) {
   const _matchers = [...iterator]
   if (_matchers.length === 0)
-    return -1
+    return defaultValue
 
   const matcher = _matchers[_matchers.length - 1]
   if (!matcher)
-    return -1
+    return defaultValue
 
   return (matcher?.index || 0) + (matcher[0]?.length || 0)
 }

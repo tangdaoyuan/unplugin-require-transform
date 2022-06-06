@@ -14,10 +14,11 @@ describe('.ts files runs', () => {
       import \$_1 from 'http'
       const http = \$_1;
       
+      
       ",
         "map": SourceMap {
           "file": null,
-          "mappings": "AAAA;AACA;AACA;;;AACA,WAAW,MAAkB;",
+          "mappings": "AAAA;AACA;AACA;;;AACA,WAAW,MAAkB;AACd;",
           "names": [],
           "sources": [
             null,
@@ -38,10 +39,11 @@ describe('.ts files runs', () => {
       import { ref } from 'vue'
       import \$_1 from 'http'
       const http = \$_1;
+      
       ",
         "map": SourceMap {
           "file": null,
-          "mappings": "AAAA;AACA;;AACA,WAAW",
+          "mappings": "AAAA;AACA;;AACA,WAAW,MAAiB;",
           "names": [],
           "sources": [
             null,
@@ -62,10 +64,11 @@ describe('.ts files runs', () => {
       import { ref } from 'vue'
       import \$_1 from './http'
       const http = \$_1;
+      
       ",
         "map": SourceMap {
           "file": null,
-          "mappings": "AAAA;AACA;;AACA,WAAW",
+          "mappings": "AAAA;AACA;;AACA,WAAW,MAAmB;",
           "names": [],
           "sources": [
             null,
