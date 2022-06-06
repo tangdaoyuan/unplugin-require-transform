@@ -3,7 +3,6 @@ import MagicString from 'magic-string'
 import type { Options } from '../types'
 import { REQUIRE_RE, STATIC_IMPORT_RE } from '../utils'
 import { lastPosition } from './_util'
-import Logger from '@/logger'
 
 export function transform(_code: string, _id: string, _options: Options): TransformResult {
   if (_id.endsWith('.ts'))
