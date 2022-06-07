@@ -82,7 +82,7 @@ export function transformVUE(_code: string, _id: string, _options: Options): Tra
   const lastImportPos = lastPosition(_code.matchAll(STATIC_IMPORT_RE), script.startEnd!)
   const matchers = _code.matchAll(REQUIRE_RE)
   const gen = createImporterGenerator()
-  const returnValues: string[] = []
+  const returnValues = new Set<string>()
 
   for (const matcher of matchers) {
     if (!matcher.groups?.import)
@@ -116,7 +116,7 @@ export function transformVUE(_code: string, _id: string, _options: Options): Tra
         lastImportPos,
         `${importer}\n`,
       )
-      returnValues.push(exporter)
+      returnValues.add(exporter)
     }
   }
   transformScriptReturn(magicString, script, returnValues)
@@ -127,8 +127,8 @@ export function transformVUE(_code: string, _id: string, _options: Options): Tra
   }
 }
 
-function transformScriptReturn(source: MagicString, script: any, values: string[]) {
-  if (!values.length)
+function transformScriptReturn(source: MagicString, script: any, values: Set<string>) {
+  if (!values.size)
     return
 
   // 1. setup (script)
@@ -138,10 +138,10 @@ function transformScriptReturn(source: MagicString, script: any, values: string[
     return
 
   if (script.type === 'options')
-    source.prependRight(script.scriptReturnStart, `${values.join(',\n')},\n`)
+    source.prependRight(script.scriptReturnStart, `${[...values].join(',\n')},\n`)
 
   if (script.type === 'setupFunc')
-    source.prependRight(script.scriptReturnStart, `${values.join(',\n')},\n`)
+    source.prependRight(script.scriptReturnStart, `${[...values].join(',\n')},\n`)
 }
 
 function getScriptTag(code: string) {
@@ -203,13 +203,25 @@ function getScriptTag(code: string) {
   return script
 }
 
+interface Importer {
+  importer: string
+  exporter: string
+}
+
 function createImporterGenerator() {
   let index = 0
+  const cache = new Map<string, Importer>()
   return (specifier: string) => {
+    if (cache.has(specifier))
+      return cache.get(specifier)!
+
     index++
-    return {
-      importer: `import $_${index} from '${specifier}'`,
-      exporter: `$_${index}`,
+    const exporter = `$_${index}`
+    const res = {
+      importer: `import ${exporter} from '${specifier}'`,
+      exporter: `${exporter}`,
     }
+    cache.set(specifier, res)
+    return res
   }
 }
