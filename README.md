@@ -18,12 +18,12 @@ npm i unplugin-require-transform --save-dev
 
 ```ts
 import { defineConfig } from 'vite'
-import VitePluginRequireTransform from 'unplugin-require-transform/vite'
+import unPluginRequireTransform from 'unplugin-require-transform/vite'
 
 export default defineConfig({
   plugins: [
     vue(),
-    VitePluginRequireTransform(),
+    unPluginRequireTransform.vite(),
     // ...etc
   ],
 })
@@ -33,5 +33,5 @@ export default defineConfig({
 
 ## TODO
 - [x]  vue `require` transform
-- [ ]  dedupe `import` 
+- [x]  dedupe `import` 
 - [ ]  test for webpack and add demos
