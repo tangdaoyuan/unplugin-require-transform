@@ -2,5 +2,5 @@
 </script>
 <template>
   Hello World!
-  <img :src="require('./assets/favicon.ico')">
+  <img alt="RequiredLogo" :src="require('./assets/favicon.ico')">
 </template>
