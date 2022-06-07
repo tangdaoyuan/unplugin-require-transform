@@ -2,7 +2,7 @@
   "name": "unplugin-require-transform",
   "version": "0.0.2",
   "packageManager": "pnpm@7.1.1",
-  "description": "keep polite by plugin",
+  "description": "transform require into import",
   "keywords": [
     "unplugin",
     "require-transform",
