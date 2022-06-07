@@ -1,0 +1,20 @@
+{
+  "extends": [
+    "config:base"
+  ],
+  "timezone": "Asia/Shanghai",
+  "schedule": ["after 6pm on sunday"],
+  "packageRules": [
+    {
+      "matchPackagePatterns": [
+        "*"
+      ],
+      "matchUpdateTypes": [
+        "minor",
+        "patch"
+      ],
+      "groupName": "all non-major dependencies",
+      "groupSlug": "all-minor-patch"
+    }
+  ]
+}
