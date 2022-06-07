@@ -2,7 +2,7 @@ import type { TransformResult } from 'unplugin'
 import MagicString from 'magic-string'
 import type { Options } from '../types'
 import { REQUIRE_RE, STATIC_IMPORT_RE } from '../utils'
-import { lastPosition } from './_util'
+import { createImporterGenerator, getScriptTag, lastImporterPosition } from './_util'
 
 export function transform(_code: string, _id: string, _options: Options): TransformResult {
   if (_id.endsWith('.ts'))
@@ -26,9 +26,10 @@ export function transformTS(_code: string, _id: string, _options: Options): Tran
   if (!_code.match(REQUIRE_RE))
     return _code
 
-  const lastImportPos = lastPosition(_code.matchAll(STATIC_IMPORT_RE))
+  const lastImportPos = lastImporterPosition(_code.matchAll(STATIC_IMPORT_RE))
   const matchers = _code.matchAll(REQUIRE_RE)
   const source = new MagicString(_code)
+  const importers = new Set<string>()
 
   const gen = createImporterGenerator()
 
@@ -47,17 +48,21 @@ export function transformTS(_code: string, _id: string, _options: Options): Tran
     else {
       source.remove(matcher.index!, matcher.index! + matcher[0].length)
     }
-    source.prependRight(
-      lastImportPos,
-      `${importer}\n`,
-    )
+
+    if (!importers.has(importer)) {
+      source.prependRight(
+        lastImportPos,
+        `${importer}\n`,
+      )
+      importers.add(importer)
+    }
   }
 
   source.append('\n')
 
   return {
     code: source.toString(),
-    map: source.generateMap(),
+    map: _options.sourcemap ? source.generateMap() : null,
   }
 }
 
@@ -79,11 +84,21 @@ export function transformVUE(_code: string, _id: string, _options: Options): Tra
 
   const magicString = new MagicString(_code)
 
-  const lastImportPos = lastPosition(_code.matchAll(STATIC_IMPORT_RE), script.startEnd!)
+  const lastImportPos = lastImporterPosition(_code.matchAll(STATIC_IMPORT_RE), script.startEnd!)
   const matchers = _code.matchAll(REQUIRE_RE)
   const gen = createImporterGenerator()
   const returnValues = new Set<string>()
+  const importers = new Set<string>()
 
+  function insertImporter(importer: string) {
+    if (!importers.has(importer)) {
+      magicString.prependRight(
+        lastImportPos,
+        `${importer}\n`,
+      )
+      importers.add(importer)
+    }
+  }
   for (const matcher of matchers) {
     if (!matcher.groups?.import)
       continue
@@ -95,10 +110,7 @@ export function transformVUE(_code: string, _id: string, _options: Options): Tra
           matcher.index! + matcher[0].length,
           `= ${exporter};`,
         )
-        magicString.prependRight(
-          lastImportPos,
-          `${importer}\n`,
-        )
+        insertImporter(importer)
       }
       else {
         magicString.remove(matcher.index!, matcher.index! + matcher[0].length)
@@ -112,18 +124,16 @@ export function transformVUE(_code: string, _id: string, _options: Options): Tra
         matcher.index! + matcher[0].length,
         `${exporter}`,
       )
-      magicString.prependRight(
-        lastImportPos,
-        `${importer}\n`,
-      )
+      insertImporter(importer)
       returnValues.add(exporter)
     }
   }
+
   transformScriptReturn(magicString, script, returnValues)
 
   return {
     code: magicString.toString(),
-    map: magicString.generateMap(),
+    map: _options.sourcemap ? magicString.generateMap() : null,
   }
 }
 
@@ -142,86 +152,4 @@ function transformScriptReturn(source: MagicString, script: any, values: Set<str
 
   if (script.type === 'setupFunc')
     source.prependRight(script.scriptReturnStart, `${[...values].join(',\n')},\n`)
-}
-
-function getScriptTag(code: string) {
-  const scriptMatcher = code.match(/(?<prefix>\<script(\s.*(?<type>setup))*>[\n]*)[\S\s]*\<\/script\>/m)
-
-  let script = {
-    start: 0,
-    len: 0,
-    type: 'setup',
-    startEnd: 0,
-    content: '',
-    lost: false,
-    scriptReturnStart: 0,
-  }
-  if (!scriptMatcher) {
-    const appendStr = '<script setup>\n</script>'
-    script.start = 0
-    script.startEnd = 15
-    script.len = appendStr.length
-    script.content = appendStr
-    script.lost = true
-  }
-  else {
-    let type = scriptMatcher.groups?.type
-    let scriptReturnStart = 0
-    if (!type) {
-      /**
-       * matcher such as:
-       *
-       * [
-       *  'setup() {\n  return {',
-       *  ...
-       *]
-       */
-      const setupMatcher = scriptMatcher[0].match(/setup\s*\(.*\)\s*\{[\s\S]*return\s*\{\n*/)
-      const dataMatcher = scriptMatcher[0].match(/data\s*\(.*\)\s*\{[\s\S]*return\s*\{\n*/)
-
-      if (setupMatcher) {
-        type = 'setupFunc'
-        scriptReturnStart = scriptMatcher.index! + setupMatcher.index! + setupMatcher[0].length
-      }
-
-      if (dataMatcher) {
-        type = 'options'
-        scriptReturnStart = scriptMatcher.index! + dataMatcher.index! + dataMatcher[0].length
-      }
-    }
-
-    script = {
-      start: scriptMatcher.index || 0,
-      len: scriptMatcher?.[0]?.length,
-      type: type || 'unknown',
-      startEnd: (scriptMatcher?.index || 0) + (scriptMatcher?.groups?.prefix.length || 0),
-      content: scriptMatcher?.[0] || '',
-      lost: false,
-      scriptReturnStart,
-    }
-  }
-  return script
-}
-
-interface Importer {
-  importer: string
-  exporter: string
-}
-
-function createImporterGenerator() {
-  let index = 0
-  const cache = new Map<string, Importer>()
-  return (specifier: string) => {
-    if (cache.has(specifier))
-      return cache.get(specifier)!
-
-    index++
-    const exporter = `$_${index}`
-    const res = {
-      importer: `import ${exporter} from '${specifier}'`,
-      exporter: `${exporter}`,
-    }
-    cache.set(specifier, res)
-    return res
-  }
 }

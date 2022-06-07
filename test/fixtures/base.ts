@@ -15,6 +15,12 @@ import { ref } from 'vue'
 const http = require('./http')
 `
 
+export const requireImporterDupe = `
+import { ref } from 'vue'
+const http1 = require('http')
+const http2 = require('http')
+`
+
 export const Comments = `
 import { ref } from 'vue'
 // const http = require('./http')

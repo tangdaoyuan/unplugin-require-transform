@@ -88,3 +88,20 @@ export default {
 }
 </script>
 `
+
+export const sfcSegment_TemplateScript_Dupe = `
+<template>
+  <img :src="require('../assets/logo.png')" />
+  <img :src="require('../assets/logo.png')" />
+  <img :src="require('../assets/logo.png')" />
+  <img :src="require('../assets/logo.png')" />
+</template>
+<script>
+const logo = require('../assets/logo.png')
+export default {
+  data() {
+    return {}
+  }
+}
+</script>
+`

@@ -1,10 +1,14 @@
 import { describe, expect, it } from 'vitest'
-import { Comments, requireAbsoluteSegment, requireBaseSegment, requireRelativeSegment } from './fixtures/base'
+import { Comments, requireAbsoluteSegment, requireBaseSegment, requireImporterDupe, requireRelativeSegment } from './fixtures/base'
 import { transformTS } from '@/transform'
+
+const options = {
+  sourcemap: false,
+}
 
 describe('.ts files runs', () => {
   it('basic file', () => {
-    const code = transformTS(requireBaseSegment, 'test/fixtures/base.ts', {})
+    const code = transformTS(requireBaseSegment, 'test/fixtures/base.ts', options)
     expect(code).toMatchInlineSnapshot(`
       {
         "code": "
@@ -16,23 +20,12 @@ describe('.ts files runs', () => {
       
       
       ",
-        "map": SourceMap {
-          "file": null,
-          "mappings": "AAAA;AACA;AACA;;;AACA,WAAW,MAAkB;AACd;",
-          "names": [],
-          "sources": [
-            null,
-          ],
-          "sourcesContent": [
-            null,
-          ],
-          "version": 3,
-        },
+        "map": null,
       }
     `)
   })
   it('absolute path require', () => {
-    const code = transformTS(requireAbsoluteSegment, 'test/fixtures/absolute.ts', {})
+    const code = transformTS(requireAbsoluteSegment, 'test/fixtures/absolute.ts', options)
     expect(code).toMatchInlineSnapshot(`
       {
         "code": "
@@ -41,23 +34,12 @@ describe('.ts files runs', () => {
       const http = \$_1;
       
       ",
-        "map": SourceMap {
-          "file": null,
-          "mappings": "AAAA;AACA;;AACA,WAAW,MAAiB;",
-          "names": [],
-          "sources": [
-            null,
-          ],
-          "sourcesContent": [
-            null,
-          ],
-          "version": 3,
-        },
+        "map": null,
       }
     `)
   })
   it('relative path require', () => {
-    const code = transformTS(requireRelativeSegment, 'test/fixtures/relative.ts', {})
+    const code = transformTS(requireRelativeSegment, 'test/fixtures/relative.ts', options)
     expect(code).toMatchInlineSnapshot(`
       {
         "code": "
@@ -66,29 +48,33 @@ describe('.ts files runs', () => {
       const http = \$_1;
       
       ",
-        "map": SourceMap {
-          "file": null,
-          "mappings": "AAAA;AACA;;AACA,WAAW,MAAmB;",
-          "names": [],
-          "sources": [
-            null,
-          ],
-          "sourcesContent": [
-            null,
-          ],
-          "version": 3,
-        },
+        "map": null,
       }
     `)
   })
   it('comment', () => {
-    const code = transformTS(Comments, 'test/fixtures/comments.ts', {})
+    const code = transformTS(Comments, 'test/fixtures/comments.ts', options)
     expect(code).toMatchInlineSnapshot(`
       "
       import { ref } from 'vue'
       // const http = require('./http')
       /** const http = require('./http') */
       "
+    `)
+  })
+  it('importer duplicate', () => {
+    const code = transformTS(requireImporterDupe, 'test/fixtures/importer-dupe.ts', options)
+    expect(code).toMatchInlineSnapshot(`
+      {
+        "code": "
+      import { ref } from 'vue'
+      import \$_1 from 'http'
+      const http1 = \$_1;
+      const http2 = \$_1;
+      
+      ",
+        "map": null,
+      }
     `)
   })
 })
