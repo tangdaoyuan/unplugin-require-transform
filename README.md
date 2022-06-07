@@ -13,6 +13,9 @@ npm i unplugin-require-transform --save-dev
 
 ## Usage
 
+<details open>
+<summary>Vite</summary>
+
 ```ts
 import { defineConfig } from 'vite'
 import VitePluginRequireTransform from 'unplugin-require-transform/vite'
@@ -25,7 +28,10 @@ export default defineConfig({
   ],
 })
 ```
+<br/></details>
+
 
 ## TODO
 - [x]  vue `require` transform
 - [ ]  dedupe `import` 
+- [ ]  test for webpack and add demos
