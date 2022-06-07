@@ -1,6 +1,6 @@
 {
   "name": "unplugin-require-transform",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "packageManager": "pnpm@7.1.1",
   "description": "transform require into import",
   "keywords": [
