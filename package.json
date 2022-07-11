@@ -76,13 +76,13 @@
     "unplugin": "^0.7.0"
   },
   "devDependencies": {
-    "@suger-tdy/eslint-config": "1.1.6",
+    "@suger-tdy/eslint-config": "1.1.7",
     "bumpp": "8.2.1",
-    "esbuild": "0.14.48",
+    "esbuild": "0.14.49",
     "eslint": "8.19.0",
     "typescript": "4.7.4",
     "unbuild": "0.7.4",
-    "vite": "2.9.13",
-    "vitest": "0.17.0"
+    "vite": "2.9.14",
+    "vitest": "0.18.0"
   }
 }
