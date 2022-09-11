@@ -76,7 +76,7 @@
     "unplugin": "^0.9.0"
   },
   "devDependencies": {
-    "@suger-tdy/eslint-config": "1.1.10",
+    "@suger-tdy/eslint-config": "2.0.1",
     "bumpp": "8.2.1",
     "esbuild": "0.15.6",
     "eslint": "8.23.0",
