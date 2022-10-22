@@ -3,7 +3,7 @@ import { defaultOptions } from './options'
 import { transform } from './transform'
 import type { GeneralOptions } from './types'
 
-export default createUnplugin<GeneralOptions>((_options, _meta) => {
+export default createUnplugin((_options?: GeneralOptions) => {
   const options = { ...defaultOptions, ..._options }
 
   return {
