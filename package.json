@@ -73,7 +73,7 @@
   "dependencies": {
     "magic-string": "^0.26.2",
     "picocolors": "^1.0.0",
-    "unplugin": "^0.10.0"
+    "unplugin": "^1.0.0"
   },
   "devDependencies": {
     "@suger-tdy/eslint-config": "1.1.12",
